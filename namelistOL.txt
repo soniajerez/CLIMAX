@@ -1,0 +1,44 @@
+##################################################################################
+### Specify values below according to the OL or OLS problem you want to solve
+##################################################################################
+### Ns/Nw ------- Number of solar/wind sub-regions (integer number). 
+###                   Mandatory for both OD and ODS codes to run.
+### rs2w -------- Ratio between the mean solar CF and the mean wind CF in the 
+###                   target region (real number with 2 decimals). 
+###                   Used, optionally, only by the ODS code. 
+###                   To disable this option, use rs2w=-1.00
+### Isc/Iwc ----- Desired solar/wind power capacity in the target region.
+###                   Defined as a real number with 2 decimals.
+###                   Used only by the OL code (mandatory)
+### Sscmin/max -- Bottom/upper limits for the solar/wind power capacity in 
+###                   the target region (real number with 2 decimals)
+###                   Used, optionally, only by the OLS code.
+###                   To disable this option, use -1.00 for the bottom 
+###                   limits and 2.00 for the upper ones
+#  Ns  Nw   rs2w  Isc  Iwc  Iscmin Iscmax Iwcmin Iwcmax
+   9   14   1.68  100   50    40	  80     20    60
+#------------------------------------------------------------------------------
+### Bottom/upper limits for the solar power capacity in each sub-region (real number with 2 decimals)
+### Used, optinally, by both OL and OLS codes
+### To disable this option, use -1.00 for the bottom limits and 2.00 for the upper ones
+### Otherwise, add/remove as many values as neccessary. The codes expect to find 2 
+### lines with Ns values each.
+#  IscminR[0:Ns-1]
+#sub-reg:  1    2    3    4    5    6    7    8    9
+          5.00 5.00 5.00 5.00 5.00 5.00 5.00 5.00 5.00
+#  IscmaxR[0:Ns-1]
+#sub-reg:  1    2    3    4    5    6    7    8    9
+	      30.0 30.0 30.0 30.0 30.0 30.0 30.0 30.0 30.0
+#------------------------------------------------------------------------------	
+### Bottom/upper limits for the wind power capacity in each sub-region (real number with 2 decimals)
+### Used, optinally, by both OL and OLS codes
+### To disable this option, use -1.00 for the bottom limits and 2.00 for the upper ones
+### Otherwise, add/remove as many values as neccessary. The codes expect to find 2 
+### lines with Nw values each.
+#  IwcminR[0:Nw-1]
+#subregion: 1    2    3    4    5    6    7    8    9   10   11   12   13   14
+          -1.0 -1.0  5.0 -1.0 -1.0 -1.0  5.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0  2.0
+#  IwcmaxR[0:Nw-1]
+#subregion:  1      2      3      4      5      6      7      8      9     10     11     12     13     14
+	      100000 100000 100000 100000 100000 100000 100000 100000 100000 100000 100000 100000 100000 100000
+	      
