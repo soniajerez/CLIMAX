@@ -256,7 +256,7 @@ for i in range(Ns+Nw):
 res=minimize(funtryOD,X,tol=tol)
 X=res.x
 ff=funtryOD(X)
-if(ff > 1.e-11):
+if(ff > 1.e-10):
     print('It seems that constrains are not compatible')
     print('____________________________________________')
     print('Fisrt Constrain:')
@@ -283,47 +283,47 @@ if(ff > 1.e-11):
     print('Third Constrain:')
     print('Sum(Ss[i])=%8.3f  Ssc=%8.3f' %(sum(S[:Ns]),Ssc))
     print('Sum(Sw[i])=%8.3f  Swc=%8.3f' %(sum(S[Ns:]),Swc))
-
-#Optimize OD problem
-tol=1.e-7
-C1=10.0
-C2=100.0
-C3=100.0
-fc1=100
-fc2=100
-fc3=100
-while(fc1>tol or fc2>tol or fc3>tol):
-#    print('C:',C1,C2,C3)
-#    print('f:',fc1,fc2,fc3)
-    if(fc1>tol):
-        C1=2.0*C1
-    if(fc2>tol):
-        C2=2.0*C2
-    if(fc3>tol):
-        C3=2.0*C3
-    res=minimize(funOD,X,args=(C1,C2,C3))
-    X=res.x
-    Ctot=np.dot(X,X)
-    S=X*X/Ctot
-    fc1=fconstr1(S)
-    fc2=fconstr2(S)
-    fc3=fconstr3(S)
-f0=fun1(S)
-print('fmin=%5.3f  fcons1=%9.3e  fcons1=%9.3e fcons3=%9.3e' % (f0,fc1,fc2,fc3))
-Ss=sum(S[:Ns])
-Sw=sum(S[Ns:])
-print('Ssc=%5.3f   Sum(S_s)=%5.3f' %(Ssc,Ss))
-print('Swc=%5.3f   Sum(S_w)=%5.3f' %(Swc,Sw))
-print('_____________')
-for i in range(Ns):  
-    print(' Ss(%2d)= %5.3f' %(i+1,S[i]))
-print('_____________')
-for i in range(Nw):   
-    print(' Sw(%2d)= %5.3f' %(i+1,S[i+Ns])) 
-print('_____________')
-Prod=np.dot(CC,S) # produccion
-for i in range(NMP):
-    print(' Prod[%2d]=%8.3f, MM[%2d]=%8.3f' %(i+1,Prod[i],i+1,MM[i]))
+else:
+#optimize OD problem
+    tol=1.e-7
+    C1=10.0
+    C2=100.0
+    C3=100.0
+    fc1=100
+    fc2=100
+    fc3=100
+    while(fc1>tol or fc2>tol or fc3>tol):
+#        print('C:',C1,C2,C3)
+#        print('f:',fc1,fc2,fc3)
+        if(fc1>tol):
+            C1=2.0*C1
+        if(fc2>tol):
+            C2=2.0*C2
+        if(fc3>tol):
+            C3=2.0*C3
+        res=minimize(funOD,X,args=(C1,C2,C3))
+        X=res.x
+        Ctot=np.dot(X,X)
+        S=X*X/Ctot
+        fc1=fconstr1(S)
+        fc2=fconstr2(S)
+        fc3=fconstr3(S)
+    f0=fun1(S)
+    print('fmin=%5.3f  fcons1=%9.3e  fcons1=%9.3e fcons3=%9.3e' % (f0,fc1,fc2,fc3))
+    Ss=sum(S[:Ns])
+    Sw=sum(S[Ns:])
+    print('Ssc=%5.3f   Sum(S_s)=%5.3f' %(Ssc,Ss))
+    print('Swc=%5.3f   Sum(S_w)=%5.3f' %(Swc,Sw))
+    print('_____________')
+    for i in range(Ns):  
+        print(' Ss(%2d)= %5.3f' %(i+1,S[i]))
+    print('_____________')
+    for i in range(Nw):   
+        print(' Sw(%2d)= %5.3f' %(i+1,S[i+Ns])) 
+    print('_____________')
+    Prod=np.dot(CC,S) # produccion
+    for i in range(NMP):
+        print(' Prod[%2d]=%8.3f, MM[%2d]=%8.3f' %(i+1,Prod[i],i+1,MM[i]))
 
 
 

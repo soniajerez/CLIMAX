@@ -241,7 +241,7 @@ for i in range(Ns+Nw):
 res=minimize(funtryOL,X,tol=tol)
 X=res.x
 ff=funtryOL(X)
-if(ff > 1.e-11):
+if(ff > 1.e-10):
     print('It seems that constrains are not compatible')
     print('____________________________________________')
     print('Fisrt Constrain:')
@@ -267,46 +267,46 @@ if(ff > 1.e-11):
     print('Third Constrain:')
     print('Sum(Is[i])=%8.3f  Isc=%8.3f' %(sum(I[:Ns]),Isc))
     print('Sum(Iw[i])=%8.3f  Iwc=%8.3f' %(sum(I[Ns:]),Iwc))
-
+else:
 #Optimize OL problem
-tol=1.e-7
-C1=10.0
-C2=100.0
-C3=100.0
-fc1=100
-fc2=100
-fc3=5000
-while(fc1>tol or fc2>tol or fc3>tol):
-#    print('C:',C1,C2,C3)
-#    print('f:',fc1,fc2,fc3)
-    if(fc1>tol):
-        C1=2.0*C1
-    if(fc2>tol):
-        C2=2.0*C2
-    if(fc3>tol):
-        C3=2.0*C3
-    res=minimize(funOL,X,args=(C1,C2,C3))
-    X=res.x
-    I=X*X
-    fc1=fconstr1(I)
-    fc2=fconstr2(I)
-    fc3=fconstr3(I)
-f0=fun1(I)
-print('fmin=%5.3f  fcons1=%9.3e  fcons1=%9.3e fcons3=%9.3e' % (f0,fc1,fc2,fc3))
-Is=sum(I[:Ns])
-Iw=sum(I[Ns:])
-print('Isc=%5.3f   Sum(Is)=%5.3f' %(Isc,Is))
-print('Iwc=%5.3f   Sum(Iw)=%5.3f' %(Iwc,Iw))
-print('_____________')
-for i in range(Ns):  
-    print(' Is(%2d)= %6.3f' %(i+1,I[i]))
-print('_____________')
-for i in range(Nw):   
-    print(' Iw(%2d)= %6.3f' %(i+1,I[i+Ns])) 
-print('_____________')
-Prod=np.dot(CC,I) # produccion
-for i in range(NMP):
-    print(' Prod[%2d]=%9.3f, MM[%2d]=%9.3f' %(i+1,Prod[i],i+1,MM[i]))
+    tol=1.e-7
+    C1=10.0
+    C2=100.0
+    C3=100.0
+    fc1=100
+    fc2=100
+    fc3=5000
+    while(fc1>tol or fc2>tol or fc3>tol):
+#        print('C:',C1,C2,C3)
+#        print('f:',fc1,fc2,fc3)
+        if(fc1>tol):
+            C1=2.0*C1
+        if(fc2>tol):
+            C2=2.0*C2
+        if(fc3>tol):
+            C3=2.0*C3
+        res=minimize(funOL,X,args=(C1,C2,C3))
+        X=res.x
+        I=X*X
+        fc1=fconstr1(I)
+        fc2=fconstr2(I)
+        fc3=fconstr3(I)
+    f0=fun1(I)
+    print('fmin=%5.3f  fcons1=%9.3e  fcons1=%9.3e fcons3=%9.3e' % (f0,fc1,fc2,fc3))
+    Is=sum(I[:Ns])
+    Iw=sum(I[Ns:])
+    print('Isc=%5.3f   Sum(Is)=%5.3f' %(Isc,Is))
+    print('Iwc=%5.3f   Sum(Iw)=%5.3f' %(Iwc,Iw))
+    print('_____________')
+    for i in range(Ns):  
+        print(' Is(%2d)= %6.3f' %(i+1,I[i]))
+    print('_____________')
+    for i in range(Nw):   
+        print(' Iw(%2d)= %6.3f' %(i+1,I[i+Ns])) 
+    print('_____________')
+    Prod=np.dot(CC,I) # produccion
+    for i in range(NMP):
+        print(' Prod[%2d]=%9.3f, MM[%2d]=%9.3f' %(i+1,Prod[i],i+1,MM[i]))
 
 
 

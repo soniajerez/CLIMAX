@@ -255,7 +255,7 @@ for i in range(Ns+Nw):
 res=minimize(funtryODS,X,tol=tol)
 X=res.x
 ff=funtryODS(X)
-if(ff > 1.e-11):
+if(ff > 1.e-10):
     print('It seems that constrains are not compatible')
     print('____________________________________________')
     print('Fisrt Constrain:')
@@ -296,52 +296,52 @@ if(ff > 1.e-11):
         print('Sw=',Sw,'should be > Swcmin=',Swcmin)
     elif(Sw>Swcmax):
         print('Sw=',Sw,'should be < Swcmax=',Swcmax)
-
+else:
 #Optimize ODS problem 
-tol=1.e-6 # tolerance related to the constrain functions.
-C1=10.0
-C2=100.0
-C4=100.0
-C5=100
-fc1=100
-fc2=100
-fc4=100
-fc5=100
-while(fc1>tol or fc2>tol or fc4>tol or fc5>tol):
-#    print('C:',C1,C2,C4,C5)
-#    print('f:',fc1,fc2,fc4,fc5)
-    if(fc1>tol):
-        C1=2.0*C1
-    if(fc2>tol):
-        C2=2.0*C2
-    if(fc4>tol):
-        C4=2.0*C4
-    if(fc5>tol):
-        C5=2.0*C5
-    res=minimize(funODS,X,args=(C1,C2,C4,C5))
-    X=res.x
-    Ctot=np.dot(X,X)
-    S=X*X/Ctot
-    fc1=fconstr1(S)
-    fc2=fconstr2(S)
-    fc4=fconstr4(S)
-    fc5=fconstr5(S)
-f0=fun1(S)
-print('fmin=%5.3f  fcons1=%9.3e  fcons1=%9.3e fcons4=%9.3e fcons5=%9.3e' % (f0,fc1,fc2,fc4,fc5))
-Ss=sum(S[:Ns])
-Sw=sum(S[Ns:])
-print(' Sscmin=%5.3f Sum(Ss)=%5.3f Sscmax=%5.3f' %(Sscmin,Ss,Sscmax))
-print(' Swcmin=%5.3f Sum(Sw)=%5.3f Swcmax=%5.3f' %(Swcmin,Sw,Swcmax))
-print('_____________')
-for i in range(Ns):  
-    print(' Ss(%2d)= %5.3f' %(i+1,S[i]))
-print('_____________')
-for i in range(Nw):   
-    print(' Sw(%2d)= %5.3f' %(i+1,S[i+Ns])) 
-print('_____________')
-Prod=np.dot(CC,S) # produccion
-for i in range(NMP):
-    print(' Prod[%2d]=%8.3f, MM[%2d]=%8.3f' %(i+1,Prod[i],i+1,MM[i]))
+    tol=1.e-6 # tolerance related to the constrain functions.
+    C1=10.0
+    C2=100.0
+    C4=100.0
+    C5=100
+    fc1=100
+    fc2=100
+    fc4=100
+    fc5=100
+    while(fc1>tol or fc2>tol or fc4>tol or fc5>tol):
+#        print('C:',C1,C2,C4,C5)
+#        print('f:',fc1,fc2,fc4,fc5)
+        if(fc1>tol):
+            C1=2.0*C1
+        if(fc2>tol):
+            C2=2.0*C2
+        if(fc4>tol):
+            C4=2.0*C4
+        if(fc5>tol):
+            C5=2.0*C5
+        res=minimize(funODS,X,args=(C1,C2,C4,C5))
+        X=res.x
+        Ctot=np.dot(X,X)
+        S=X*X/Ctot
+        fc1=fconstr1(S)
+        fc2=fconstr2(S)
+        fc4=fconstr4(S)
+        fc5=fconstr5(S)
+    f0=fun1(S)
+    print('fmin=%5.3f  fcons1=%9.3e  fcons1=%9.3e fcons4=%9.3e fcons5=%9.3e' % (f0,fc1,fc2,fc4,fc5))
+    Ss=sum(S[:Ns])
+    Sw=sum(S[Ns:])
+    print(' Sscmin=%5.3f Sum(Ss)=%5.3f Sscmax=%5.3f' %(Sscmin,Ss,Sscmax))
+    print(' Swcmin=%5.3f Sum(Sw)=%5.3f Swcmax=%5.3f' %(Swcmin,Sw,Swcmax))
+    print('_____________')
+    for i in range(Ns):  
+        print(' Ss(%2d)= %5.3f' %(i+1,S[i]))
+    print('_____________')
+    for i in range(Nw):   
+        print(' Sw(%2d)= %5.3f' %(i+1,S[i+Ns])) 
+    print('_____________')
+    Prod=np.dot(CC,S) # produccion
+    for i in range(NMP):
+        print(' Prod[%2d]=%8.3f, MM[%2d]=%8.3f' %(i+1,Prod[i],i+1,MM[i]))
 
 
 
