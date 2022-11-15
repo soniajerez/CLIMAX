@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
+
 # optimOL.py 
 # see README.txt file for details.
 #----------------------------------
 import numpy as np
 from scipy.optimize import minimize
+
+
+# In[2]:
+
 
 #--------------------------------------------
 # Necesary functions
@@ -50,19 +57,19 @@ def readOL(dir):
                 if(icount==1):
                     IscminR=[]
                     for i in range(len(t)):
-                        IscminR=np.append(float(t[i].strip()),IscminR)
+                        IscminR=np.append(IscminR,float(t[i].strip()))
                 if(icount==2):
                     IscmaxR=[]
                     for i in range(len(t)):
-                        IscmaxR=np.append(float(t[i].strip()),IscmaxR)
+                        IscmaxR=np.append(IscmaxR,float(t[i].strip()))
                 if(icount==3):
                     IwcminR=[]
                     for i in range(len(t)):
-                        IwcminR=np.append(float(t[i].strip()),IwcminR)
+                        IwcminR=np.append(IwcminR,float(t[i].strip()))
                 if(icount==4):
                     IwcmaxR=[]
                     for i in range(len(t)):
-                        IwcmaxR=np.append(float(t[i].strip()),IwcmaxR)
+                        IwcmaxR=np.append(IwcmaxR,float(t[i].strip()))
 # put Iscmin/max and Iwcmin/max into a single vector
     global IminR,ImaxR
     IminR=np.append(IscminR,IwcminR)
@@ -85,15 +92,15 @@ def readOL(dir):
     if(BB.shape[0] != NTT):
         print('wrong dimensions in file-ref.txt')
 # read the file: file-cf2.txt
-# CC : matrix of shape 12x(Ns+Nw)
+# CC : matrix of shape NMPx(Ns+Nw)
 # first NS columns correspond to the matrix As and last Nw columns corrspond to Aw.
-# each row correspods to one month
+# each row correspods to one time interval
 # See README.txt for details.
     global NMP,CC
     CC=np.loadtxt(dir+'/file-cf2.txt')
     NMP=CC.shape[0] # number of row
-    l1=CC.shape[1]  #number of columns
-    if( NTT%NMP != 0 or l1 != Ns+Nw):
+    l1=CC.shape[1]  # number of columns
+    if(l1 != Ns+Nw):
         print('wrong dimensions in file-cf2.txt')
 # read the file: file-min.txt. One column and NMP rows
 # MM : vector of length NMP. 
@@ -102,10 +109,6 @@ def readOL(dir):
     MM=np.loadtxt(dir+'/file-min.txt')
     if(MM.shape[0] != NMP):
         print('wrong dimensions in file-min.txt')
-    for j in range(NMP):
-        ccmax=max(CC[j,:])
-        if(ccmax < MM[j]):
-            print('wrong construction of file-min.txt')
     return
 
 def P_anom(I):  # Total production anomalies.
@@ -119,7 +122,7 @@ def fun1(I): # Defines the minimizing function for OL and OLS problems, Eq. (7) 
     return f 
 
 def fconstr1(I):
-# defines el constrain of minimun capacity of production. Eq. (8) in README.txt.
+# defines the constrain of minimun capacity of production. Eq. (8) in README.txt.
     Prod=np.dot(CC,I) # produccion
     fcons=0
     for i in range(NMP):
@@ -128,7 +131,7 @@ def fconstr1(I):
     return fcons
 
 def fconstr2(I):
-# defines el constrain of minimun/maximun threshold per sub-region. Eq. (9) in README.txt.
+# defines the constrain of minimun/maximun threshold per sub-region. Eq. (9) in README.txt.
     fcons=0
     for i in range(len(IminR)):
         if(I[i] < IminR[i]):
@@ -138,12 +141,12 @@ def fconstr2(I):
     return fcons
 
 def fconstr3(I):
-# defines el constrain total shares of each technology. Eq. (10) in README.txt.
+# defines the constrain of total shares of each technology. Eq. (10) in README.txt.
     fcons=(sum(I[0:Ns])-Isc)**2+(sum(I[Ns:Ns+Nw])-Iwc)**2
     return fcons
 
 def fconstr4(I):    
-#define el constrain de ratio solar to wind technology: rs2w, eq. (11).
+# defines the  constrain de ratio solar to wind technology: rs2w, eq. (11).
     Is=sum(I[:Ns])
     Iw=sum(I[Ns:])
     fcons=0
@@ -154,7 +157,7 @@ def fconstr4(I):
     return fcons
 
 def fconstr5(I):    
-#define el constrain of total ammount of installed capacity, eq. (12).
+#defines the constrain of total ammount of installed capacity, eq. (12).
     Is=sum(I[:Ns])
     Iw=sum(I[Ns:])
     fcons=0
@@ -211,6 +214,10 @@ def funtryOLS(X):
 #    print(f0,fcons1,fcons2,fcons4,fcons5)
     return f
 
+
+# In[3]:
+
+
 # Read all data of the OL or OLS problem.
 dir='.'
 readOL(dir)
@@ -241,7 +248,7 @@ for i in range(Ns+Nw):
 res=minimize(funtryOL,X,tol=tol)
 X=res.x
 ff=funtryOL(X)
-if(ff > 1.e-10):
+if(ff > 1.e-11):
     print('It seems that constrains are not compatible')
     print('____________________________________________')
     print('Fisrt Constrain:')
@@ -267,46 +274,53 @@ if(ff > 1.e-10):
     print('Third Constrain:')
     print('Sum(Is[i])=%8.3f  Isc=%8.3f' %(sum(I[:Ns]),Isc))
     print('Sum(Iw[i])=%8.3f  Iwc=%8.3f' %(sum(I[Ns:]),Iwc))
-else:
+
+
+# In[4]:
+
+
 #Optimize OL problem
-    tol=1.e-7
-    C1=10.0
-    C2=100.0
-    C3=100.0
-    fc1=100
-    fc2=100
-    fc3=5000
-    while(fc1>tol or fc2>tol or fc3>tol):
-#        print('C:',C1,C2,C3)
-#        print('f:',fc1,fc2,fc3)
-        if(fc1>tol):
-            C1=2.0*C1
-        if(fc2>tol):
-            C2=2.0*C2
-        if(fc3>tol):
-            C3=2.0*C3
-        res=minimize(funOL,X,args=(C1,C2,C3))
-        X=res.x
-        I=X*X
-        fc1=fconstr1(I)
-        fc2=fconstr2(I)
-        fc3=fconstr3(I)
-    f0=fun1(I)
-    print('fmin=%5.3f  fcons1=%9.3e  fcons1=%9.3e fcons3=%9.3e' % (f0,fc1,fc2,fc3))
-    Is=sum(I[:Ns])
-    Iw=sum(I[Ns:])
-    print('Isc=%5.3f   Sum(Is)=%5.3f' %(Isc,Is))
-    print('Iwc=%5.3f   Sum(Iw)=%5.3f' %(Iwc,Iw))
-    print('_____________')
-    for i in range(Ns):  
-        print(' Is(%2d)= %6.3f' %(i+1,I[i]))
-    print('_____________')
-    for i in range(Nw):   
-        print(' Iw(%2d)= %6.3f' %(i+1,I[i+Ns])) 
-    print('_____________')
-    Prod=np.dot(CC,I) # produccion
-    for i in range(NMP):
-        print(' Prod[%2d]=%9.3f, MM[%2d]=%9.3f' %(i+1,Prod[i],i+1,MM[i]))
+tol=1.e-6
+C1=10.0
+C2=100.0
+C3=100.0
+fc1=100
+fc2=100
+fc3=5000
+while(fc1>tol or fc2>tol or fc3>tol):
+#    print('C:',C1,C2,C3)
+#    print('f:',fc1,fc2,fc3)
+    if(fc1>tol):
+        C1=2.0*C1
+    if(fc2>tol):
+        C2=2.0*C2
+    if(fc3>tol):
+        C3=2.0*C3
+    res=minimize(funOL,X,args=(C1,C2,C3))
+    X=res.x
+    I=X*X
+    fc1=fconstr1(I)
+    fc2=fconstr2(I)
+    fc3=fconstr3(I)
+f0=fun1(I)
+print('fmin=%5.3f  fcons1=%9.3e  fcons1=%9.3e fcons3=%9.3e' % (f0,fc1,fc2,fc3))
+Is=sum(I[:Ns])
+Iw=sum(I[Ns:])
+print('Isc=%5.3f   Sum(Is)=%5.3f' %(Isc,Is))
+print('Iwc=%5.3f   Sum(Iw)=%5.3f' %(Iwc,Iw))
+print('_____________')
+for i in range(Ns):  
+    print(' Is(%2d)= %6.3f' %(i+1,I[i]))
+print('_____________')
+for i in range(Nw):   
+    print(' Iw(%2d)= %6.3f' %(i+1,I[i+Ns])) 
+print('_____________')
+Prod=np.dot(CC,I) # produccion
+for i in range(NMP):
+    print(' Prod[%2d]=%9.3f, MM[%2d]=%9.3f' %(i+1,Prod[i],i+1,MM[i]))
+
+
+# In[51]:
 
 
 

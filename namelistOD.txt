@@ -6,21 +6,21 @@
 ### rs2w -------- Ratio between the mean solar CF and the mean wind CF in the 
 ###                   target region (real number with 2 decimals). 
 ###                   Used, optionally, only by the ODS code. 
-###                   To disable this option, use rs2w=-1.00
+###                   To disable this option, use rs2w < 0.00
 ### Ssc/Swc ----- Desired solar/wind power share in the target region.
 ###                   Defined as a real number with 2 decimals.
 ###                   Used only by the OD code (mandatory)
 ### Sscmin/max -- Bottom/upper limits for the solar/wind power share in 
 ###                   the target region (real number with 2 decimals)
 ###                   Used, optionally, only by the ODS code.
-###                   To disable this option, use -1.00 for the bottom 
-###                   limits and 2.00 for the upper ones
+###                   To disable this option, use < 0.00 for the bottom 
+###                   limits and >1.00 for the upper ones
 #  Ns  Nw   rs2w   Ssc  Swc  Sscmin Sscmax Swcmin Swcmax
    9   14   1.68  0.22	0.78  0.40	 0.80   0.20  0.60
 #------------------------------------------------------------------------------
 ### Bottom/upper limits for the solar power share in each sub-region (real number with 2 decimals)
 ### Used, optionally, by both OD and ODS codes
-### To disable this option, use -1.00 for the bottom limits and 2.00 for the upper ones
+### To disable this option, use  < 0.00 for the bottom limits and > 1.00 for the upper ones
 ### Otherwise, add/remove as many values as neccessary. The codes expect to find 2 
 ### lines with Ns values each.
 #  SscminR[0:Ns-1]
@@ -28,11 +28,11 @@
          0.01 0.01 0.01 0.01 0.01 0.05 0.05 0.05 0.01
 #  SscmaxR[0:Ns-1]
 #sub-reg:  1    2    3    4    5    6    7    8    9
-	     0.30 0.30 0.30 0.30 0.30 0.30 0.30 0.30 0.30
+	 0.30 0.30 0.30 0.30 0.30 0.30 0.30 0.30 0.30
 #------------------------------------------------------------------------------	
 ### Bottom/upper limits for the wind power share in each sub-region (real number with 2 decimals)
 ### Used, optionally, by both OD and ODS codes
-### To disable this option, use -1.00 for the bottom limits and 2.00 for the upper ones
+### To disable this option, use <0.00 for the bottom limits and >1.00 for the upper ones
 ### Otherwise, add/remove as many values as neccessary. The codes expect to find 2 
 ### lines with Nw values each.
 #  SwcminR[0:Nw-1]
@@ -40,5 +40,5 @@
           -1.0 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
 #  SwcmaxR[0:Nw-1]
 #subregion: 1    2    3    4    5    6    7    8    9   10   11   12   13   14
-	      0.50 2.00 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50
+	  0.50 2.00 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50 0.50
 	      

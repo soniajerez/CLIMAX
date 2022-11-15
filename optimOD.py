@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
+
 # optimOD.py 
 # see README.txt file for details.
 #----------------------------------
 import numpy as np
 from scipy.optimize import minimize
+
+
+# In[2]:
+
 
 #--------------------------------------------
 # Necesary functions
@@ -50,19 +57,19 @@ def readOD(dir):
                 if(icount==1):
                     SscminR=[]
                     for i in range(len(t)):
-                        SscminR=np.append(float(t[i].strip()),SscminR)
+                        SscminR=np.append(SscminR,float(t[i].strip()))
                 if(icount==2):
                     SscmaxR=[]
                     for i in range(len(t)):
-                        SscmaxR=np.append(float(t[i].strip()),SscmaxR)
+                        SscmaxR=np.append(SscmaxR,float(t[i].strip()))
                 if(icount==3):
                     SwcminR=[]
                     for i in range(len(t)):
-                        SwcminR=np.append(float(t[i].strip()),SwcminR)
+                        SwcminR=np.append(SwcminR,float(t[i].strip()))
                 if(icount==4):
                     SwcmaxR=[]
                     for i in range(len(t)):
-                        SwcmaxR=np.append(float(t[i].strip()),SwcmaxR)
+                        SwcmaxR=np.append(SwcmaxR,float(t[i].strip()))
     if(Ssc <0 or Swc <0 or Ssc>1 or Swc>1 or abs(Ssc+Swc-1)> 0.01):
         print('Check Ssc or Swc values')
     if(Sscmin>1 or Sscmax<=0 or Swcmin>1 or Swcmax<=0):
@@ -138,7 +145,7 @@ def fconstr1(S):
     return fcons
 
 def fconstr2(S):
-# defines el constrain of minimun/maximun threshold per sub-region. Eq. (3) in README.txt.
+# defines the constrain of minimun/maximun threshold per sub-region. Eq. (3) in README.txt.
     fcons=0
     for i in range(len(SminR)):
         if(S[i] < SminR[i]):
@@ -148,12 +155,12 @@ def fconstr2(S):
     return fcons
 
 def fconstr3(S):
-# defines el constrain total shares of each technology. Eq. (4) in README.txt.
+# defines the constrain total shares of each technology. Eq. (4) in README.txt.
     fcons=(sum(S[0:Ns])-Ssc)**2+(sum(S[Ns:Ns+Nw])-Swc)**2
     return fcons
 
 def fconstr4(S):    
-#define el constrain de ratio solar to wind technology: rs2w, eq. (5).
+#define the constrain of ratio solar to wind technology: rs2w, eq. (5).
     Ss=sum(S[:Ns])
     Sw=sum(S[Ns:])
     fcons=0
@@ -164,7 +171,7 @@ def fconstr4(S):
     return fcons
 
 def fconstr5(S):    
-#define el constrain de ratio solar to wind technology: rs2w, eq. (6).
+#define the constrain of maximum and minimum threshold for toal share, eq. (6).
     Ss=sum(S[:Ns])
     Sw=sum(S[Ns:])
     fcons=0
@@ -225,6 +232,10 @@ def funtryODS(X):
 #    print(f0,fcons1,fcons2,fcons4,fcons5)
     return f
 
+
+# In[3]:
+
+
 # Read all data of the OD or ODS problem.
 dir='.'
 readOD(dir)
@@ -256,7 +267,7 @@ for i in range(Ns+Nw):
 res=minimize(funtryOD,X,tol=tol)
 X=res.x
 ff=funtryOD(X)
-if(ff > 1.e-10):
+if(ff > 1.e-11):
     print('It seems that constrains are not compatible')
     print('____________________________________________')
     print('Fisrt Constrain:')
@@ -265,7 +276,7 @@ if(ff > 1.e-10):
     Prod=np.dot(CC,S)
     for i in range(NMP):
         if(Prod[i]<MM[i]):
-            print(i,Prod[i],'<',MM[i])
+            print(i,Prod[i],'should be >',MM[i])
     print()
     print('Second Constrain:')
     for i in range(len(SminR)):
@@ -276,55 +287,67 @@ if(ff > 1.e-10):
             Ty='Wind'
             ii=i+1-Ns
         if(S[i] < SminR[i]):
-            print(Ty+' region:',ii,'   S[i]=%6.3f < Smin[i]=%6.3f' %(S[i],SminR[i]))
+            print(Ty+' region:',ii,'   S[i]=%6.3f should be > Smin[i]=%6.3f' %(S[i],SminR[i]))
         if(S[i] > SmaxR[i]):
-            print(Ty+' region:',ii,'   S[i]=%6.3f > Smax[i]=%6.3f' %(S[i],SmaxR[i]))           
+            print(Ty+' region:',ii,'   S[i]=%6.3f should be < Smax[i]=%6.3f' %(S[i],SmaxR[i]))           
     print()
     print('Third Constrain:')
     print('Sum(Ss[i])=%8.3f  Ssc=%8.3f' %(sum(S[:Ns]),Ssc))
     print('Sum(Sw[i])=%8.3f  Swc=%8.3f' %(sum(S[Ns:]),Swc))
-else:
-#optimize OD problem
-    tol=1.e-7
-    C1=10.0
-    C2=100.0
-    C3=100.0
-    fc1=100
-    fc2=100
-    fc3=100
-    while(fc1>tol or fc2>tol or fc3>tol):
-#        print('C:',C1,C2,C3)
-#        print('f:',fc1,fc2,fc3)
-        if(fc1>tol):
-            C1=2.0*C1
-        if(fc2>tol):
-            C2=2.0*C2
-        if(fc3>tol):
-            C3=2.0*C3
-        res=minimize(funOD,X,args=(C1,C2,C3))
-        X=res.x
-        Ctot=np.dot(X,X)
-        S=X*X/Ctot
-        fc1=fconstr1(S)
-        fc2=fconstr2(S)
-        fc3=fconstr3(S)
-    f0=fun1(S)
-    print('fmin=%5.3f  fcons1=%9.3e  fcons1=%9.3e fcons3=%9.3e' % (f0,fc1,fc2,fc3))
-    Ss=sum(S[:Ns])
-    Sw=sum(S[Ns:])
-    print('Ssc=%5.3f   Sum(S_s)=%5.3f' %(Ssc,Ss))
-    print('Swc=%5.3f   Sum(S_w)=%5.3f' %(Swc,Sw))
-    print('_____________')
-    for i in range(Ns):  
-        print(' Ss(%2d)= %5.3f' %(i+1,S[i]))
-    print('_____________')
-    for i in range(Nw):   
-        print(' Sw(%2d)= %5.3f' %(i+1,S[i+Ns])) 
-    print('_____________')
-    Prod=np.dot(CC,S) # produccion
-    for i in range(NMP):
-        print(' Prod[%2d]=%8.3f, MM[%2d]=%8.3f' %(i+1,Prod[i],i+1,MM[i]))
 
+
+# In[4]:
+
+
+#Optimize OD problem
+tol=1.e-7
+C1=10.0
+C2=100.0
+C3=100.0
+fc1=100
+fc2=100
+fc3=100
+while(fc1>tol or fc2>tol or fc3>tol):
+#    print('C:',C1,C2,C3)
+#    print('f:',fc1,fc2,fc3)
+    if(fc1>tol):
+        C1=2.0*C1
+    if(fc2>tol):
+        C2=2.0*C2
+    if(fc3>tol):
+        C3=2.0*C3
+    res=minimize(funOD,X,args=(C1,C2,C3))
+    X=res.x
+    Ctot=np.dot(X,X)
+    S=X*X/Ctot
+    fc1=fconstr1(S)
+    fc2=fconstr2(S)
+    fc3=fconstr3(S)
+f0=fun1(S)
+print('fmin=%5.3f  fcons1=%9.3e  fcons1=%9.3e fcons3=%9.3e' % (f0,fc1,fc2,fc3))
+Ss=sum(S[:Ns])
+Sw=sum(S[Ns:])
+print('Ssc=%5.3f   Sum(S_s)=%5.3f' %(Ssc,Ss))
+print('Swc=%5.3f   Sum(S_w)=%5.3f' %(Swc,Sw))
+print('_____________')
+for i in range(Ns):  
+    print(' Ss(%2d)= %5.3f' %(i+1,S[i]))
+print('_____________')
+for i in range(Nw):   
+    print(' Sw(%2d)= %5.3f' %(i+1,S[i+Ns])) 
+print('_____________')
+Prod=np.dot(CC,S) # produccion
+for i in range(NMP):
+    print(' Prod[%2d]=%8.3f, MM[%2d]=%8.3f' %(i+1,Prod[i],i+1,MM[i]))
+
+
+# In[1]:
+
+
+jupyter nbconvert --to script optimOD.ipynb
+
+
+# In[ ]:
 
 
 

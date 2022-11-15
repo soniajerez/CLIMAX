@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
+
 # optimODS.py 
 # see README.txt file for details.
 #----------------------------------
 import numpy as np
 from scipy.optimize import minimize
+
+
+# In[2]:
+
 
 #--------------------------------------------
 # Necesary functions
@@ -50,19 +57,19 @@ def readOD(dir):
                 if(icount==1):
                     SscminR=[]
                     for i in range(len(t)):
-                        SscminR=np.append(float(t[i].strip()),SscminR)
+                        SscminR=np.append(SscminR,float(t[i].strip()))
                 if(icount==2):
                     SscmaxR=[]
                     for i in range(len(t)):
-                        SscmaxR=np.append(float(t[i].strip()),SscmaxR)
+                        SscmaxR=np.append(SscmaxR,float(t[i].strip()))
                 if(icount==3):
                     SwcminR=[]
                     for i in range(len(t)):
-                        SwcminR=np.append(float(t[i].strip()),SwcminR)
+                        SwcminR=np.append(SwcminR,float(t[i].strip()))
                 if(icount==4):
                     SwcmaxR=[]
                     for i in range(len(t)):
-                        SwcmaxR=np.append(float(t[i].strip()),SwcmaxR)
+                        SwcmaxR=np.append(SwcmaxR,float(t[i].strip()))
     if(Ssc <0 or Swc <0 or Ssc>1 or Swc>1 or abs(Ssc+Swc-1)> 0.01):
         print('Check Ssc or Swc values')
     if(Sscmin>1 or Sscmax<=0 or Swcmin>1 or Swcmax<=0):
@@ -101,7 +108,7 @@ def readOD(dir):
     CC=np.loadtxt(dir+'/file-cf2.txt')
     NMP=CC.shape[0] # number of row
     l1=CC.shape[1]  #number of columns
-    if( NTT%NMP != 0 or l1 != Ns+Nw):
+    if(l1 != Ns+Nw):
         print('wrong dimensions in file-cf2.txt')
 # read the file: file-min.txt. One column and NMP rows
 # MM : vector of length NMP. 
@@ -128,7 +135,7 @@ def fun1(S): # Defines the minimizing function. Eq. (1) in README.txt.
     return f 
 
 def fconstr1(S):
-# defines el constrain of minimun capacity of production. Eq. (2) in README.txt.
+# defines the constrain of minimun capacity of production. Eq. (2) in README.txt.
 # See section 1.4 of READM.txt for explanation.
     Prod=np.dot(CC,S) # produccion
     fcons=0
@@ -138,7 +145,7 @@ def fconstr1(S):
     return fcons
 
 def fconstr2(S):
-# defines el constrain of minimun/maximun threshold per sub-region. Eq. (3) in README.txt.
+# defines the constrain of minimun/maximun threshold per sub-region. Eq. (3) in README.txt.
     fcons=0
     for i in range(len(SminR)):
         if(S[i] < SminR[i]):
@@ -148,12 +155,12 @@ def fconstr2(S):
     return fcons
 
 def fconstr3(S):
-# defines el constrain total shares of each technology. Eq. (4) in README.txt.
+# defines the constrain total shares of each technology. Eq. (4) in README.txt.
     fcons=(sum(S[0:Ns])-Ssc)**2+(sum(S[Ns:Ns+Nw])-Swc)**2
     return fcons
 
 def fconstr4(S):    
-#define el constrain de ratio solar to wind technology: rs2w, eq. (5).
+#defines the constrain of the ratio solar to wind technology: rs2w, eq. (5).
     Ss=sum(S[:Ns])
     Sw=sum(S[Ns:])
     fcons=0
@@ -164,7 +171,7 @@ def fconstr4(S):
     return fcons
 
 def fconstr5(S):    
-#define el constrain de ratio solar to wind technology: rs2w, eq. (6).
+#defines the constrain of maximum and minimum threshold for toal share, eq. (6).
     Ss=sum(S[:Ns])
     Sw=sum(S[Ns:])
     fcons=0
@@ -225,6 +232,10 @@ def funtryODS(X):
 #    print(f0,fcons1,fcons2,fcons4,fcons5)
     return f
 
+
+# In[3]:
+
+
 # Read all data of the OD or ODS problem.
 dir='.'
 readOD(dir)
@@ -246,7 +257,7 @@ print('NMP=',NMP)
 #------------------------------------------------------------------------------------
 # Check constrains
 # inicializa X
-X=np.random.rand(Ns+Nw)   #se podria leer de un fichero
+X=np.random.rand(Ns+Nw)  
 # search for a possible solution of the constrains with tolerance=tol
 # If a solution is found it is used as initial guess for the full minimization problem
 tol=1.e-8   
@@ -255,7 +266,7 @@ for i in range(Ns+Nw):
 res=minimize(funtryODS,X,tol=tol)
 X=res.x
 ff=funtryODS(X)
-if(ff > 1.e-10):
+if(ff > 1.e-11):
     print('It seems that constrains are not compatible')
     print('____________________________________________')
     print('Fisrt Constrain:')
@@ -296,52 +307,59 @@ if(ff > 1.e-10):
         print('Sw=',Sw,'should be > Swcmin=',Swcmin)
     elif(Sw>Swcmax):
         print('Sw=',Sw,'should be < Swcmax=',Swcmax)
-else:
+
+
+# In[5]:
+
+
 #Optimize ODS problem 
-    tol=1.e-6 # tolerance related to the constrain functions.
-    C1=10.0
-    C2=100.0
-    C4=100.0
-    C5=100
-    fc1=100
-    fc2=100
-    fc4=100
-    fc5=100
-    while(fc1>tol or fc2>tol or fc4>tol or fc5>tol):
-#        print('C:',C1,C2,C4,C5)
-#        print('f:',fc1,fc2,fc4,fc5)
-        if(fc1>tol):
-            C1=2.0*C1
-        if(fc2>tol):
-            C2=2.0*C2
-        if(fc4>tol):
-            C4=2.0*C4
-        if(fc5>tol):
-            C5=2.0*C5
-        res=minimize(funODS,X,args=(C1,C2,C4,C5))
-        X=res.x
-        Ctot=np.dot(X,X)
-        S=X*X/Ctot
-        fc1=fconstr1(S)
-        fc2=fconstr2(S)
-        fc4=fconstr4(S)
-        fc5=fconstr5(S)
-    f0=fun1(S)
-    print('fmin=%5.3f  fcons1=%9.3e  fcons1=%9.3e fcons4=%9.3e fcons5=%9.3e' % (f0,fc1,fc2,fc4,fc5))
-    Ss=sum(S[:Ns])
-    Sw=sum(S[Ns:])
-    print(' Sscmin=%5.3f Sum(Ss)=%5.3f Sscmax=%5.3f' %(Sscmin,Ss,Sscmax))
-    print(' Swcmin=%5.3f Sum(Sw)=%5.3f Swcmax=%5.3f' %(Swcmin,Sw,Swcmax))
-    print('_____________')
-    for i in range(Ns):  
-        print(' Ss(%2d)= %5.3f' %(i+1,S[i]))
-    print('_____________')
-    for i in range(Nw):   
-        print(' Sw(%2d)= %5.3f' %(i+1,S[i+Ns])) 
-    print('_____________')
-    Prod=np.dot(CC,S) # produccion
-    for i in range(NMP):
-        print(' Prod[%2d]=%8.3f, MM[%2d]=%8.3f' %(i+1,Prod[i],i+1,MM[i]))
+tol=1.e-6 # tolerance related to the constrain functions.
+C1=10.0
+C2=100.0
+C4=100.0
+C5=100
+fc1=100
+fc2=100
+fc4=100
+fc5=100
+while(fc1>tol or fc2>tol or fc4>tol or fc5>tol):
+#    print('C:',C1,C2,C4,C5)
+#    print('f:',fc1,fc2,fc4,fc5)
+    if(fc1>tol):
+        C1=2.0*C1
+    if(fc2>tol):
+        C2=2.0*C2
+    if(fc4>tol):
+        C4=2.0*C4
+    if(fc5>tol):
+        C5=2.0*C5
+    res=minimize(funODS,X,args=(C1,C2,C4,C5))
+    X=res.x
+    Ctot=np.dot(X,X)
+    S=X*X/Ctot
+    fc1=fconstr1(S)
+    fc2=fconstr2(S)
+    fc4=fconstr4(S)
+    fc5=fconstr5(S)
+f0=fun1(S)
+print('fmin=%5.3f  fcons1=%9.3e  fcons1=%9.3e fcons4=%9.3e fcons5=%9.3e' % (f0,fc1,fc2,fc4,fc5))
+Ss=sum(S[:Ns])
+Sw=sum(S[Ns:])
+print(' Sscmin=%5.3f Sum(Ss)=%5.3f Sscmax=%5.3f' %(Sscmin,Ss,Sscmax))
+print(' Swcmin=%5.3f Sum(Sw)=%5.3f Swcmax=%5.3f' %(Swcmin,Sw,Swcmax))
+print('_____________')
+for i in range(Ns):  
+    print(' Ss(%2d)= %5.3f' %(i+1,S[i]))
+print('_____________')
+for i in range(Nw):   
+    print(' Sw(%2d)= %5.3f' %(i+1,S[i+Ns])) 
+print('_____________')
+Prod=np.dot(CC,S) # produccion
+for i in range(NMP):
+    print(' Prod[%2d]=%8.3f, MM[%2d]=%8.3f' %(i+1,Prod[i],i+1,MM[i]))
+
+
+# In[51]:
 
 
 
